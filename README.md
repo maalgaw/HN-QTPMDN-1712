@@ -28,7 +28,9 @@ sudo apt-get install libxml2-dev libxslt-dev libldap2-dev libsasl2-dev libssl-de
 python3.10 -m venv ./venv`
 ```
 ## 1.4. Thay đổi trình thông dịch sang môi trường ảo.
-`source venv/bin/activate`
+```
+source venv/bin/activate
+```
 ## 1.5. Chạy requirements.txt để cài đặt tiếp các thư viện được yêu cầu
 ```
 pip3 install -r requirements.txt
