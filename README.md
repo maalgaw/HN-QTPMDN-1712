@@ -14,7 +14,12 @@
 ## 1.1. Clone project.
 ```
 git clone https://gitlab.com/anhlta/odoo-fitdnu.git
+```
+```
 cd Business-Internship
+```
+```
+git checkout CNTT_1602
 ```
 ## 1.2. cài đặt các thư viện cần thiết
 
@@ -39,8 +44,12 @@ pip3 install -r requirements.txt
 
 Khởi tạo database trên docker bằng việc thực thi file dockercompose.yml.
 ```
+sudo apt install docker-compose
+```
+```
 sudo docker-compose up -d
 ```
+Nếu lỗi có thể tải Docker Desktop về tại https://www.docker.com/get-started/
 # 3. Setup tham số chạy cho hệ thống
 ## 3.1. Khởi tạo odoo.conf
 
