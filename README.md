@@ -46,10 +46,16 @@ sudo apt install docker-compose
 ```
 sudo docker-compose up -d
 ```
+Nếu dùng phiên bản mới chạy:
+```
+sudo docker compose up -d
+```
 Nếu lỗi có thể tải Docker Desktop về tại https://www.docker.com/get-started/
 # 3. Setup tham số chạy cho hệ thống
 ## 3.1. Khởi tạo odoo.conf
-
+```
+nano odoo.conf
+```
 Tạo tệp **odoo.conf** có nội dung như sau:
 
 ```
