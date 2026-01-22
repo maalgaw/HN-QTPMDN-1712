@@ -16,10 +16,7 @@
 git clone https://gitlab.com/anhlta/odoo-fitdnu.git
 ```
 ```
-cd Business-Internship
-```
-```
-git checkout CNTT_1602
+cd TTDN-16-02-N2
 ```
 ## 1.2. cài đặt các thư viện cần thiết
 
