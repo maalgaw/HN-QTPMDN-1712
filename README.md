@@ -47,18 +47,43 @@ Hình ảnh hệ thống:
 
 ## 📸 Giao diện & Chức năng
 
-### Phân hệ Nhân sự
+### Module quản lý nhân sự
 | |  |
 |:---:|:---:|
 | ![Giao diện chính](./docs/images/1.png) | ![LSCT](./docs/images/2.png) |
 | *Giao diện chính quản lý nhân sự* | *Giao diện lịch sử công tác* |
 
-|  |  |
+|  |  
+|:---:|
+| ![Chứng chỉ, bằng cấp](./docs/images/3.png) | 
+| *Giao diện danh sách chứng chỉ bằng cấp* |  
+
+### Module quản lý công việc
+| |  |
 |:---:|:---:|
-| ![Chứng chỉ, bằng cấp](./docs/images/3.png) | |
-| *Giao diện danh sách chứng chỉ bằng cấp* |  |
+| ![Dashboard](./docs/images/4.png) | ![DSCV](./docs/images/5.png) |
+| *Giao diện Dashboard* | *Giao diện danh sách công việc* |
 
+| |  |
+|:---:|:---:|
+| ![NKCV](./docs/images/6.png) | ![DGNV](./docs/images/7.png) |
+| *Giao diện nhật ký công việc* | *Giao diện đánh giá nhân viên* | 
 
+|  |  
+|:---:|
+| ![GDLV](./docs/images/8.png) | 
+| *Giao diện giai đoạn làm việc* |  
+
+### Module quản lý dự án
+| |  |
+|:---:|:---:|
+| ![Giao diện chính](./docs/images/9.png) | ![TNDA](./docs/images/10.png) |
+| *Giao diện chính quản lý dự án* | *Giao diện tài nguyên dự án* |
+
+|  |  
+|:---:|
+| ![Biểu đồ](./docs/images/11.png) | 
+| *Giao diện biểu đồ tiến độ dự án* |  
 
 ## 1.1. Clone project.
 ```
