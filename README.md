@@ -1,4 +1,6 @@
-<h1 align="center">HỆ THỐNG ERP – QUẢN LÝ TÀI SẢN & TÀI CHÍNH KẾ TOÁN</h1>
+<h1 align="center">ERP: HỆ THỐNG QUẢN LÝ NHÂN SỰ - CÔNG VIỆC – DỰ ÁN
+<img width="744" height="53" alt="image" src="https://github.com/user-attachments/assets/8331b6ff-3cdb-4c3d-9726-24139ab1d958" />
+</h1>
 
 <p align="center">
   <em>Dành cho học phần Thực tập doanh nghiệp</em>
