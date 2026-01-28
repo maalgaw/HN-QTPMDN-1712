@@ -47,17 +47,15 @@ Hình ảnh hệ thống:
 
 ## 📸 Giao diện & Chức năng
 
-### AI Trợ lý Thông minh & Phân tích
-Tích hợp trí tuệ nhân tạo để hỗ trợ người dùng, dự đoán và phân tích dữ liệu.
-
+### Phân hệ Nhân sự (HR)
 | AI Chatbot | Cấu hình & Kết nối |
 |:---:|:---:|
-| ![AI Chatbot](./docs/image/1.png) | ![Cấu hình AI](./docs/img/cauhinhAI.png) |
+| ![AI Chatbot](./docs/images/1.png) | ![Cấu hình AI](./docs/images/2.png) |
 | *Giao diện Chatbot hỗ trợ người dùng 24/7* | *Cấu hình kết nối với các mô hình AI* |
 
 | Dự báo & Phân tích | Hiệu quả sử dụng |
 |:---:|:---:|
-| ![Dự đoán AI](./docs/img/dudoanAI.png) | ![Phân tích hiệu quả](./docs/img/phantichhieuquaAI.png) |
+| ![Dự đoán AI](./docs/images/3.png) | ![Phân tích hiệu quả](./docs/images/4.png) |
 | *Dự đoán xu hướng bảo trì và khấu hao* | *Phân tích hiệu quả khai thác tài sản* |
 
 
