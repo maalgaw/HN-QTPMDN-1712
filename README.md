@@ -30,7 +30,7 @@
 
 ## 📌 Giới thiệu hệ thống
 
-Hệ thống ERP được xây dựng trên nền tảng **Odoo**, phục vụ bài toán **quản lý nhân sự – công việc – dự án** cho doanh nghiệp quy mô nhỏ và vừa.
+Hệ thống ERP được xây dựng trên nền tảng **Odoo**, phục vụ bài toán **quản lý nhân sự – công việc – dự án**.
 
 Hệ thống cho phép:
 - Quản lý hồ sơ nhân sự
