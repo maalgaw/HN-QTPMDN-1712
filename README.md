@@ -46,7 +46,11 @@ Hình ảnh hệ thống:
 
 ## 1.1. Clone project.
 ```
-git clone https://github.com/FIT-DNU/Business-Internship.git
+https://github.com/nddchamhett/TTDN-16-02-N2.git
+```
+Hoặc nếu muốn clone base project
+```
+https://github.com/FIT-DNU/Business-Internship.git
 ```
 ## 1.2. cài đặt các thư viện cần thiết
 
