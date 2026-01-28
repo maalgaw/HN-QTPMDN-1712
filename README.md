@@ -33,10 +33,10 @@
 Hệ thống ERP được xây dựng trên nền tảng **Odoo**, phục vụ bài toán **quản lý nhân sự – công việc – dự án** cho doanh nghiệp quy mô nhỏ và vừa.
 
 Hệ thống cho phép:
--Quản lý hồ sơ nhân sự
--Phân công và theo dõi công việc
--Quản lý dự án và tiến độ tổng thể
--Gợi ý nhân sự và tạo công việc tự động bằng AI
+- Quản lý hồ sơ nhân sự
+- Phân công và theo dõi công việc
+- Quản lý dự án và tiến độ tổng thể
+- Gợi ý nhân sự và tạo công việc tự động bằng AI
 
 <p align="center">
   <img src="docs/images/Gemini_Generated_Image_pkt8q1pkt8q1pkt8.png"
