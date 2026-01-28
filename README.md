@@ -1,5 +1,5 @@
-<h1 align="center">ERP: HỆ THỐNG QUẢN LÝ NHÂN SỰ - CÔNG VIỆC – DỰ ÁN
-</h1>
+<h2 align="center">ERP: HỆ THỐNG QUẢN LÝ NHÂN SỰ - CÔNG VIỆC – DỰ ÁN
+</h2>
 
 <p align="center">
   <em>Dành cho học phần Thực tập doanh nghiệp</em>
