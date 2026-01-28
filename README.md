@@ -37,6 +37,7 @@ Hệ thống cho phép:
 - Phân công và theo dõi công việc
 - Quản lý dự án và tiến độ tổng thể
 - Gợi ý nhân sự và tạo công việc tự động bằng AI
+
 Hình ảnh hệ thống: 
 <p align="center">
   <img src="docs/images/Gemini_Generated_Image_pkt8q1pkt8q1pkt8.png"
