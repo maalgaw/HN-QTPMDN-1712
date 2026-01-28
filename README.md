@@ -29,8 +29,16 @@
 ![Python](https://img.shields.io/badge/python-v3.8+-blue.svg)
 [![security: bandit](https://img.shields.io/badge/security-bandit-yellow.svg)](https://github.com/PyCQA/bandit)
 
+## 📌 Giới thiệu hệ thống
 
+Hệ thống ERP được xây dựng trên nền tảng **Odoo**, phục vụ bài toán **quản lý nhân sự – công việc – dự án** cho doanh nghiệp quy mô nhỏ và vừa.
 
+Hệ thống cho phép:
+- Quản lý hồ sơ nhân sự, đơn vị, chức vụ
+- Giao việc, theo dõi tiến độ công việc
+- Quản lý dự án, đánh giá mức độ hoàn thành
+- Hỗ trợ phân tích hiệu suất và cảnh báo trễ tiến độ
+- Sẵn sàng mở rộng tích hợp AI hỗ trợ ra quyết định
 
 # 1. Cài đặt công cụ, môi trường và các thư viện cần thiết
 
