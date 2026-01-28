@@ -47,11 +47,11 @@ Hình ảnh hệ thống:
 
 ## 📸 Giao diện & Chức năng
 
-### Phân hệ Nhân sự (HR)
+### Phân hệ Nhân sự
 | AI Chatbot | Cấu hình & Kết nối |
 |:---:|:---:|
 | ![AI Chatbot](./docs/images/1.png) | ![Cấu hình AI](./docs/images/2.png) |
-| *Giao diện Chatbot hỗ trợ người dùng 24/7* | *Cấu hình kết nối với các mô hình AI* |
+| *Giao diện chính quản lý nhân sự* | *Giao diện lịch sử công tác* |
 
 | Dự báo & Phân tích | Hiệu quả sử dụng |
 |:---:|:---:|
