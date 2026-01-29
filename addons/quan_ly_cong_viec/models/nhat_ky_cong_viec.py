@@ -7,7 +7,7 @@ class NhatKyCongViec(models.Model):
 
     cong_viec_id = fields.Many2one('cong_viec', string='Công Việc', ondelete='cascade')
     # Lưu trực tiếp dự án, làm inverse cho One2many nhat_ky_cong_viec_ids trên model du_an
-    du_an_id = fields.Many2one('du_an', string='Dự Án', ondelete='cascade')
+    project_id = fields.Many2one('du_an', string='Dự Án', ondelete='cascade')
 
     nhan_vien_ids = fields.Many2many('nhan_vien', string='Người Thực Hiện', ondelete='cascade')
 
@@ -31,10 +31,10 @@ class NhatKyCongViec(models.Model):
         """Khi chọn công việc, tự động gán nhân viên và dự án tương ứng."""
         if self.cong_viec_id:
             self.nhan_vien_ids = [(6, 0, self.cong_viec_id.nhan_vien_ids.ids)]
-            self.du_an_id = self.cong_viec_id.du_an_id
+            self.project_id = self.cong_viec_id.project_id
         else:
             self.nhan_vien_ids = [(6, 0, [])]
-            self.du_an_id = False
+            self.project_id = False
 
     @api.depends('cong_viec_id', 'cong_viec_id.phan_tram_cong_viec')
     def _compute_trang_thai(self):
@@ -98,8 +98,8 @@ class NhatKyCongViec(models.Model):
     @api.constrains('nhan_vien_ids')
     def _check_nhan_vien_nhat_ky(self):
         for record in self:
-            if record.du_an_id:
-                nhan_vien_du_an_ids = record.du_an_id.nhan_vien_ids.ids
+            if record.project_id:
+                nhan_vien_du_an_ids = record.project_id.nhan_vien_ids.ids
                 for nhan_vien in record.nhan_vien_ids:
                     if nhan_vien.id not in nhan_vien_du_an_ids:
                         raise ValidationError(f"Nhân viên {nhan_vien.display_name} không thuộc dự án này.")

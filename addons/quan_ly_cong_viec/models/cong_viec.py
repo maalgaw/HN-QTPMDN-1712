@@ -14,7 +14,9 @@ class CongViec(models.Model):
 
     ten_cong_viec = fields.Char(string='Tên Công Việc' )
     mo_ta = fields.Text(string='Mô Tả')
-    du_an_id = fields.Many2one('du_an', string='Dự Án', required=True, ondelete='cascade')
+    project_id = fields.Many2one('du_an', string='Dự Án', required=True, ondelete='cascade')
+
+    nguoi_thuc_hien_id = fields.Many2one('nhan_vien', string='Người Thực Hiện', required=True, ondelete='restrict')
 
     nhan_vien_ids = fields.Many2many('nhan_vien', 'cong_viec_nhan_vien_rel', 'cong_viec_id', 'nhan_vien_id', string='Nhân Viên Tham Gia')
 
@@ -37,10 +39,16 @@ class CongViec(models.Model):
         store=True
     )
     
+    trang_thai = fields.Selection([
+        ('new', 'Mới'),
+        ('in_progress', 'Đang Làm'),
+        ('done', 'Hoàn Thành'),
+    ], string='Trạng Thái Công Việc', default='new')
+    
     trang_thai_cong_viec = fields.Selection([
         ('chua_hoan_thanh', 'Chưa Hoàn Thành'),
         ('hoan_thanh', 'Hoàn Thành'),
-    ], string='Trạng Thái Công Việc', compute='_compute_trang_thai_cong_viec', store=True, default='chua_hoan_thanh')
+    ], string='Trạng Thái Công Việc (Tính Toán)', compute='_compute_trang_thai_cong_viec', store=True, default='chua_hoan_thanh')
 
     ai_enabled = fields.Boolean(string='AI Enabled', compute='_compute_ai_enabled')
     ai_last_note = fields.Text(string='AI Ghi Chú')
@@ -64,8 +72,8 @@ class CongViec(models.Model):
             else:
                 record.phan_tram_cong_viec = 0.0
             # Cập nhật tiến độ dự án khi phần trăm công việc thay đổi
-            if record.du_an_id:
-                record.du_an_id._compute_phan_tram_du_an()
+            if record.project_id:
+                record.project_id._compute_phan_tram_du_an()
     
     @api.depends('phan_tram_cong_viec')
     def _compute_trang_thai_cong_viec(self):
@@ -100,16 +108,16 @@ class CongViec(models.Model):
                 record.thoi_gian_con_lai = "Chưa có hạn chót"
 
     
-    @api.onchange('du_an_id')
-    def _onchange_du_an_id(self):
-        if self.du_an_id:
-            self.nhan_vien_ids = [(6, 0, self.du_an_id.nhan_vien_ids.ids)]
+    @api.onchange('project_id')
+    def _onchange_project_id(self):
+        if self.project_id:
+            self.nhan_vien_ids = [(6, 0, self.project_id.nhan_vien_ids.ids)]
 
             
-    @api.constrains('du_an_id')
+    @api.constrains('project_id')
     def _check_du_an_tien_do(self):
         for record in self:
-            if record.du_an_id and record.du_an_id.tien_do_du_an == 'hoan_thanh':
+            if record.project_id and record.project_id.tien_do_du_an == 'hoan_thanh':
                 raise ValidationError("Không thể thêm công việc vào dự án đã hoàn thành.")
     
     
@@ -117,8 +125,8 @@ class CongViec(models.Model):
     @api.constrains('nhan_vien_ids')
     def _check_nhan_vien_trong_du_an(self):
         for record in self:
-            if record.du_an_id:
-                nhan_vien_du_an_ids = record.du_an_id.nhan_vien_ids.ids
+            if record.project_id:
+                nhan_vien_du_an_ids = record.project_id.nhan_vien_ids.ids
                 for nhan_vien in record.nhan_vien_ids:
                     if nhan_vien.id not in nhan_vien_du_an_ids:
                         raise ValidationError(f"Nhân viên {nhan_vien.display_name} không thuộc dự án này.")
@@ -128,13 +136,13 @@ class CongViec(models.Model):
         """Tạo công việc và cập nhật tiến độ dự án"""
         record = super(CongViec, self).create(vals)
         # Cập nhật tiến độ dự án khi tạo công việc mới
-        if record.du_an_id:
-            record.du_an_id._compute_phan_tram_du_an()
+        if record.project_id:
+            record.project_id._compute_phan_tram_du_an()
         return record
 
     def unlink(self):
         """Xóa công việc và cập nhật tiến độ dự án"""
-        du_an_ids = self.mapped('du_an_id')
+        du_an_ids = self.mapped('project_id')
         result = super(CongViec, self).unlink()
         # Cập nhật tiến độ dự án sau khi xóa công việc
         for du_an in du_an_ids:
@@ -147,7 +155,7 @@ class CongViec(models.Model):
     # -----------------
     def _ai_project_context(self):
         self.ensure_one()
-        du_an = self.du_an_id
+        du_an = self.project_id
         return {
             "ten_du_an": du_an.ten_du_an if du_an else None,
             "mo_ta_du_an": du_an.mo_ta if du_an else None,
@@ -200,7 +208,7 @@ class CongViec(models.Model):
         """AI gợi ý nhân sự làm công việc."""
         client = AiClient(self.env)
         for record in self:
-            du_an = record.du_an_id
+            du_an = record.project_id
             if not du_an:
                 raise UserError("Công việc cần thuộc một dự án.")
 

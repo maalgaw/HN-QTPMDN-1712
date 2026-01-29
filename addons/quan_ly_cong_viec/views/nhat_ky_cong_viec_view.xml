@@ -9,7 +9,7 @@
                 decoration-success="trang_thai == 'hoan_thanh_xuat_sac'"
                 decoration-danger="trang_thai == 'chua_hoan_thanh'">
                 <field name="cong_viec_id"/>
-                <field name="du_an_id"/> 
+                <field name="project_id"/> 
                 <field name="nhan_vien_ids" widget="many2many_tags"/>
                 <field name="ngay_thuc_hien"/>
                 <field name="muc_do"/>
@@ -39,7 +39,7 @@
                 <sheet>
                     <group col="4">
                         <field name="cong_viec_id"/>
-                        <field name="du_an_id"/> 
+                        <field name="project_id"/> 
                         <field name="nhan_vien_ids" widget="many2many_tags"/>
                         <field name="ngay_thuc_hien"/>
                         <field name="muc_do"/>
@@ -59,7 +59,7 @@
                 <field name="cong_viec_id"/>
                 <field name="ngay_thuc_hien"/>
                 <searchpanel>
-                    <field name="du_an_id" select="multi"/>
+                    <field name="project_id" select="multi"/>
                 </searchpanel>
             </search>
         </field>

@@ -36,7 +36,7 @@ class TaiNguyenCongViec(models.Model):
                 continue
                 
             # Lấy dự án từ công việc
-            du_an = record.cong_viec_id.du_an_id
+            du_an = record.cong_viec_id.project_id
             if not du_an:
                 continue
             
@@ -53,7 +53,7 @@ class TaiNguyenCongViec(models.Model):
             # Tìm tất cả các record sử dụng cùng tài nguyên trong cùng dự án
             all_tai_nguyen_cong_viec = self.env['tai_nguyen_cong_viec'].search([
                 ('tai_nguyen_id', '=', record.tai_nguyen_id.id),
-                ('cong_viec_id.du_an_id', '=', du_an.id)
+                ('cong_viec_id.project_id', '=', du_an.id)
             ])
             
             tong_so_luong_su_dung = 0
