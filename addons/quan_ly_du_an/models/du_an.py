@@ -20,6 +20,19 @@ class DuAn(models.Model):
     # Các quan hệ One2many tới model thuộc module quan_ly_cong_viec
     # sẽ được định nghĩa bên module đó để tránh phụ thuộc ngược.
     tai_nguyen_ids = fields.One2many('tai_nguyen', 'du_an_id', string='Danh Sách Tài Nguyên')
+    rui_ro_ids = fields.One2many('rui_ro_du_an', 'du_an_id', string='Danh Sách Rủi Ro')
+    tai_lieu_mau_ids = fields.One2many(
+        'tai_lieu_mau_du_an', 'du_an_id', string='Tài Liệu Biểu Mẫu'
+    )
+    danh_gia_du_an_ids = fields.One2many(
+        'danh_gia_du_an', 'du_an_id', string='Đánh Giá Dự Án'
+    )
+    diem_tb_danh_gia = fields.Float(
+        string='Điểm TB Đánh Giá',
+        compute='_compute_diem_tb_danh_gia',
+        digits=(16, 2),
+        store=False,
+    )
     # cong_viec_ids = fields.One2many('cong_viec', 'du_an_id', string='Công Việc')
     # danh_gia_nhan_vien_ids = fields.One2many('danh_gia_nhan_vien', 'du_an_id', string='Đánh Giá Nhân Viên')
     # nhat_ky_cong_viec_ids = fields.One2many('nhat_ky_cong_viec', 'du_an_id', string='Nhật Ký Công Việc')
@@ -36,7 +49,17 @@ class DuAn(models.Model):
         ('hoan_thanh', 'Hoàn Thành'),
         ('tam_dung', 'Tạm Dừng')
     ], string="Trạng Thái Dự Án", compute='_compute_tien_do_du_an', store=True, default='chua_bat_dau', readonly=False)
-    phan_tram_du_an = fields.Float(string="Tiến Độ Dự Án (%)", default=0.0, readonly=True)
+    tu_dong_trang_thai_du_an = fields.Boolean(
+        string='Tự Động Cập Nhật Trạng Thái',
+        default=True,
+        help='Khi bật, trạng thái dự án được tính theo ngày và % tiến độ. '
+             'Tắt để chỉnh trạng thái thủ công trên form.',
+    )
+    phan_tram_du_an = fields.Float(
+        string="Tiến Độ Dự Án (%)",
+        default=0.0,
+        help='Có thể chỉnh tay; vẫn có thể được đồng bộ khi thay đổi công việc.',
+    )
     
     # Tiến độ (%) tính toán tự động từ số công việc hoàn thành
     tien_do = fields.Float(
@@ -56,13 +79,26 @@ class DuAn(models.Model):
         for record in self:
             record.ai_enabled = enabled
 
-    @api.depends('ngay_bat_dau', 'ngay_ket_thuc', 'phan_tram_du_an')
+    @api.depends('danh_gia_du_an_ids.diem_so')
+    def _compute_diem_tb_danh_gia(self):
+        for record in self:
+            diems = [
+                int(line.diem_so)
+                for line in record.danh_gia_du_an_ids
+                if line.diem_so
+            ]
+            record.diem_tb_danh_gia = (sum(diems) / len(diems)) if diems else 0.0
+
+    @api.depends('ngay_bat_dau', 'ngay_ket_thuc', 'phan_tram_du_an', 'tu_dong_trang_thai_du_an')
     def _compute_tien_do_du_an(self):
         """Tự động cập nhật trạng thái dự án theo thời gian và tiến độ
         Lưu ý: Không tự động thay đổi nếu đang ở trạng thái 'Tạm dừng'
         """
         today = date.today()
         for record in self:
+            # None (dữ liệu cũ) = coi như bật tự động
+            if record.tu_dong_trang_thai_du_an is False:
+                continue
             # Nếu đang tạm dừng, giữ nguyên trạng thái
             if record.tien_do_du_an == 'tam_dung':
                 continue
@@ -113,6 +149,12 @@ class DuAn(models.Model):
             except KeyError:
                 # Model cong_viec chưa được load - mặc định tiến độ = 0
                 record.tien_do = 0.0
+
+    @api.constrains('phan_tram_du_an')
+    def _check_phan_tram_du_an(self):
+        for record in self:
+            if record.phan_tram_du_an < 0 or record.phan_tram_du_an > 100:
+                raise ValidationError('Tiến độ dự án (%) phải từ 0 đến 100.')
 
     @api.constrains('ngay_bat_dau', 'ngay_ket_thuc')
     def _check_ngay_thang(self):
@@ -215,7 +257,7 @@ class DuAn(models.Model):
         """
         for record in self:
             # Tìm tất cả công việc thuộc dự án này
-            cong_viec_ids = self.env['cong_viec'].search([('du_an_id', '=', record.id)])
+            cong_viec_ids = self.env['cong_viec'].search([('project_id', '=', record.id)])
             
             if cong_viec_ids:
                 # Đếm số công việc đã hoàn thành (phan_tram_cong_viec >= 100)

@@ -223,6 +223,11 @@ export class Dropdown extends Component {
      * @param {DropdownStateChangedPayload} args
      */
     onDropdownStateChanged(args) {
+        // Emitter may be unmounted while the bus event is still in flight (e.g. AppsMenu
+        // closing when a controller mounts). Guard before touching the DOM.
+        if (!this.el || !args.emitter || !args.emitter.el) {
+            return;
+        }
         if (this.el.contains(args.emitter.el)) {
             // Do not listen to events emitted by self or children
             return;

@@ -41,10 +41,10 @@
                             class="btn-success"
                             attrs="{'invisible': [('tien_do_du_an', '!=', 'tam_dung')]}"/>
                     
-                    <!-- Hiển thị trạng thái dưới dạng statusbar -->
+                    <!-- Trạng thái: chỉnh được khi tắt "Tự động cập nhật trạng thái" hoặc dùng nút Tạm dừng / Tiếp tục -->
                     <field name="tien_do_du_an" widget="statusbar" 
-                           statusbar_visible="chua_bat_dau,dang_thuc_hien,hoan_thanh"
-                           readonly="1"/>
+                           statusbar_visible="chua_bat_dau,dang_thuc_hien,hoan_thanh,tam_dung"
+                           attrs="{'readonly': [('tu_dong_trang_thai_du_an', '=', True)]}"/>
                 </header>
                 <sheet>
                     <group col="4">
@@ -58,8 +58,12 @@
                         <field name="ngay_ket_thuc"/>
                     </group>
                     <group col="4" string="Tiến Độ">
-                        <field name="tien_do" widget="progressbar" readonly="1"/>
-                        <field name="phan_tram_du_an" widget="progressbar" readonly="1"/>
+                        <field name="tu_dong_trang_thai_du_an"/>
+                        <field name="tien_do" widget="progressbar" readonly="1"
+                               string="Tiến Độ (% theo công việc hoàn thành)"/>
+                        <field name="phan_tram_du_an" widget="progressbar"
+                               string="Tiến Độ Dự Án (% có thể chỉnh tay)"/>
+                        <field name="diem_tb_danh_gia" readonly="1" string="Điểm TB đánh giá (1–10)"/>
                     </group>
 
                     <notebook>
@@ -68,6 +72,40 @@
                                 <tree editable="bottom">
                                     <field name="ten_tai_nguyen"/>
                                     <field name="so_luong"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Danh Sách Rủi Ro">
+                            <field name="rui_ro_ids" context="{'default_du_an_id': active_id}">
+                                <tree editable="bottom">
+                                    <field name="ten_rui_ro"/>
+                                    <field name="muc_do_nghiem_trong"/>
+                                    <field name="trang_thai"/>
+                                    <field name="nguoi_chiu_trach_nhiem_id"/>
+                                    <field name="bien_phap_xu_ly" optional="hide"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Tài Liệu Biểu Mẫu">
+                            <field name="tai_lieu_mau_ids" context="{'default_du_an_id': active_id}">
+                                <tree string="Biểu mẫu gắn dự án" editable="bottom">
+                                    <field name="ten_tai_lieu"/>
+                                    <field name="ngay_tai_len"/>
+                                    <field name="file_dinh_kem" filename="ten_file" widget="binary"/>
+                                    <field name="ten_file" invisible="1"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Đánh Giá Dự Án">
+                            <field name="danh_gia_du_an_ids" context="{'default_du_an_id': active_id}">
+                                <tree string="Đánh giá" editable="bottom">
+                                    <field name="ten_dot_danh_gia"/>
+                                    <field name="nguoi_danh_gia_id"
+                                           domain="['|', ('id', 'in', parent.nhan_vien_ids), ('id', '=', parent.nguoi_phu_trach_id)]"
+                                           options="{'no_create': True}"/>
+                                    <field name="ngay_danh_gia"/>
+                                    <field name="diem_so"/>
+                                    <field name="nhan_xet" optional="show"/>
                                 </tree>
                             </field>
                         </page>

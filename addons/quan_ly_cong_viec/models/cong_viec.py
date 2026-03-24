@@ -28,8 +28,22 @@ class CongViec(models.Model):
     thoi_gian_con_lai = fields.Char(string="Thời Gian Còn Lại", compute="_compute_thoi_gian_con_lai", store=True)
     
     danh_gia_nhan_vien_ids = fields.One2many('danh_gia_nhan_vien', 'cong_viec_id', string='Đánh Giá Nhân Viên')
+
+    nhat_ky_thoi_gian_ids = fields.One2many(
+        'nhat_ky_thoi_gian', 'cong_viec_id', string='Ghi Nhận Thời Gian'
+    )
+    tong_gio_lam = fields.Float(
+        string='Tổng Giờ Làm',
+        compute='_compute_tong_gio_lam',
+        store=True,
+        digits=(16, 2),
+    )
     
     tai_nguyen_cong_viec_ids = fields.One2many('tai_nguyen_cong_viec', 'cong_viec_id', string='Tài Nguyên Sử Dụng')
+
+    tai_lieu_dinh_kem_ids = fields.One2many(
+        'tai_lieu_cong_viec', 'cong_viec_id', string='Tài Liệu Đính Kèm'
+    )
     
     nhan_vien_display = fields.Char(string="Nhân Viên Tham Gia (Tên + Mã Định Danh)", compute="_compute_nhan_vien_display")
 
@@ -57,6 +71,11 @@ class CongViec(models.Model):
         enabled = self.env['ir.config_parameter'].sudo().get_param('quan_ly_cong_viec.ai_enabled', 'False') == 'True'
         for record in self:
             record.ai_enabled = enabled
+
+    @api.depends('nhat_ky_thoi_gian_ids.so_gio')
+    def _compute_tong_gio_lam(self):
+        for record in self:
+            record.tong_gio_lam = sum(record.nhat_ky_thoi_gian_ids.mapped('so_gio'))
 
     @api.depends('nhat_ky_cong_viec_ids.muc_do')
     def _compute_phan_tram_cong_viec(self):
@@ -131,14 +150,35 @@ class CongViec(models.Model):
                     if nhan_vien.id not in nhan_vien_du_an_ids:
                         raise ValidationError(f"Nhân viên {nhan_vien.display_name} không thuộc dự án này.")
 
-    @api.model
-    def create(self, vals):
-        """Tạo công việc và cập nhật tiến độ dự án"""
-        record = super(CongViec, self).create(vals)
-        # Cập nhật tiến độ dự án khi tạo công việc mới
-        if record.project_id:
-            record.project_id._compute_phan_tram_du_an()
-        return record
+    def _copy_tai_lieu_mau_tu_du_an(self):
+        """Nhân bản toàn bộ tài liệu biểu mẫu của dự án sang công việc mới."""
+        self.ensure_one()
+        if not self.project_id:
+            return
+        TaiLieuCongViec = self.env['tai_lieu_cong_viec']
+        templates = self.env['tai_lieu_mau_du_an'].search([('du_an_id', '=', self.project_id.id)])
+        today = fields.Date.context_today(self)
+        for tmpl in templates:
+            if not tmpl.file_dinh_kem:
+                continue
+            TaiLieuCongViec.create({
+                'ten_tai_lieu': tmpl.ten_tai_lieu,
+                'file_dinh_kem': tmpl.file_dinh_kem,
+                'ten_file': tmpl.ten_file,
+                'ngay_tai_len': today,
+                'cong_viec_id': self.id,
+                'nguoi_tai_len_id': False,
+            })
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        """Tạo công việc, cập nhật tiến độ dự án và tự gắn tài liệu mẫu từ dự án."""
+        records = super().create(vals_list)
+        for record in records:
+            if record.project_id:
+                record.project_id._compute_phan_tram_du_an()
+                record._copy_tai_lieu_mau_tu_du_an()
+        return records
 
     def unlink(self):
         """Xóa công việc và cập nhật tiến độ dự án"""

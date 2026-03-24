@@ -32,6 +32,12 @@
                 </header>
                 <sheet>
                     <field name="ai_enabled" invisible="1"/>
+                    <group>
+                        <group/>
+                        <group>
+                            <field name="tong_gio_lam" widget="float_time" readonly="1" string="Tổng Giờ Làm"/>
+                        </group>
+                    </group>
                     <group col="4">
                         <field name="ten_cong_viec" string="Tên Công Việc"/>
                         <field name="project_id" string="Dự Án"/>
@@ -62,6 +68,19 @@
                             </field>
                         </page>
 
+                        <page string="Ghi nhận thời gian">
+                            <field name="nhat_ky_thoi_gian_ids" context="{'default_cong_viec_id': active_id}">
+                                <tree string="Timesheet" editable="bottom">
+                                    <field name="ngay_thuc_hien"/>
+                                    <field name="mo_ta"/>
+                                    <field name="so_gio" widget="float_time"/>
+                                    <field name="nhan_vien_id"
+                                           domain="[('id', 'in', parent.nhan_vien_ids)]"
+                                           options="{'no_create': True}"/>
+                                </tree>
+                            </field>
+                        </page>
+
                         <page string="Tài Nguyên Sử Dụng">
                             <field name="tai_nguyen_cong_viec_ids">
                                 <tree string="Tài Nguyên" editable="bottom">
@@ -82,6 +101,19 @@
                                 <field name="nhan_xet" string="Nhận Xét"/>
                                 <field name="ngay_danh_gia" string="Ngày Đánh Giá"/>
                             </tree>
+                            </field>
+                        </page>
+
+                        <page string="Tài liệu đính kèm">
+                            <field name="tai_lieu_dinh_kem_ids" context="{'default_cong_viec_id': active_id}">
+                                <tree string="Tài liệu" editable="bottom">
+                                    <field name="ten_tai_lieu"/>
+                                    <field name="ngay_tai_len"/>
+                                    <field name="nguoi_tai_len_id"/>
+                                    <field name="file_dinh_kem" filename="ten_file" widget="binary"/>
+                                    <field name="ten_file" invisible="1"/>
+                                    <field name="link_luu_tru_ngoai" optional="hide"/>
+                                </tree>
                             </field>
                         </page>
                     </notebook>

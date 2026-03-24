@@ -1381,9 +1381,12 @@ class IrModelSelection(models.Model):
                 if selection.value == vals['value']:
                     continue
                 if selection.field_id.store:
+                    Model = self.env.get(selection.field_id.model)
+                    if Model is None:
+                        continue
                     # replace the value by the new one in the field's corresponding column
                     query = 'UPDATE "{table}" SET "{field}"=%s WHERE "{field}"=%s'.format(
-                        table=self.env[selection.field_id.model]._table,
+                        table=Model._table,
                         field=selection.field_id.name,
                     )
                     self.env.cr.execute(query, [vals['value'], selection.value])
@@ -1446,12 +1449,20 @@ class IrModelSelection(models.Model):
                 records.invalidate_cache([fname])
 
         for selection in self:
-            Model = self.env[selection.field_id.model]
+            Model = self.env.get(selection.field_id.model)
             # The field may exist in database but not in registry. In this case
             # we allow the field to be skipped, but for production this should
             # be handled through a migration script. The ORM will take care of
             # the orphaned 'ir.model.fields' down the stack, and will log a
             # warning prompting the developer to write a migration script.
+            if Model is None:
+                _logger.warning(
+                    "Skipping selection ondelete for unknown model %r (field %r); "
+                    "metadata may be orphaned after a rename or uninstall.",
+                    selection.field_id.model,
+                    selection.field_id.name,
+                )
+                continue
             field = Model._fields.get(selection.field_id.name)
             if not field or not field.store or not Model._auto:
                 continue
@@ -1484,7 +1495,13 @@ class IrModelSelection(models.Model):
     def _get_records(self):
         """ Return the records having 'self' as a value. """
         self.ensure_one()
-        Model = self.env[self.field_id.model]
+        Model = self.env.get(self.field_id.model)
+        if Model is None:
+            _logger.warning(
+                "_get_records: unknown model %r for field %s",
+                self.field_id.model, self.field_id.name,
+            )
+            return self.env['ir.model'].browse()
         query = 'SELECT id FROM "{table}" WHERE "{field}"=%s'.format(
             table=Model._table, field=self.field_id.name,
         )

@@ -1,3 +1,6 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_du_an,du_an.du_an,model_du_an,base.group_user,1,1,1,1
 access_tai_nguyen,tai_nguyen.tai_nguyen,model_tai_nguyen,base.group_user,1,1,1,1
+access_tai_lieu_mau_du_an,tai_lieu_mau_du_an.tai_lieu_mau_du_an,model_tai_lieu_mau_du_an,base.group_user,1,1,1,1
+access_rui_ro_du_an,rui_ro_du_an.rui_ro_du_an,model_rui_ro_du_an,base.group_user,1,1,1,1
+access_danh_gia_du_an,danh_gia_du_an.danh_gia_du_an,model_danh_gia_du_an,base.group_user,1,1,1,1

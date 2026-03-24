@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_danh_gia_nhan_vien_form_inherit_quan_ly_cong_viec" model="ir.ui.view">
+        <field name="name">danh.gia.nhan.vien.form.inherit.quan.ly.cong.viec</field>
+        <field name="model">danh_gia_nhan_vien</field>
+        <field name="inherit_id" ref="nhan_su.view_danh_gia_nhan_vien_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='nhan_vien_id']" position="after">
+                <field name="cong_viec_id"/>
+                <field name="project_id"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_danh_gia_nhan_vien_tree_inherit_quan_ly_cong_viec" model="ir.ui.view">
+        <field name="name">danh.gia.nhan.vien.tree.inherit.quan.ly.cong.viec</field>
+        <field name="model">danh_gia_nhan_vien</field>
+        <field name="inherit_id" ref="nhan_su.view_danh_gia_nhan_vien_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='nhan_vien_id']" position="after">
+                <field name="cong_viec_id"/>
+                <field name="project_id"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_danh_gia_nhan_vien_search_inherit_quan_ly_cong_viec" model="ir.ui.view">
+        <field name="name">danh.gia.nhan.vien.search.inherit.quan.ly.cong.viec</field>
+        <field name="model">danh_gia_nhan_vien</field>
+        <field name="inherit_id" ref="nhan_su.view_danh_gia_nhan_vien_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <field name="cong_viec_id"/>
+                <field name="project_id"/>
+                <searchpanel>
+                    <field name="project_id" string="Dự Án" select="multi"/>
+                    <field name="nhan_vien_id" string="Nhân Viên" select="multi"/>
+                </searchpanel>
+            </xpath>
+        </field>
+    </record>
+</odoo>

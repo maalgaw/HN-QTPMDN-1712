@@ -30,7 +30,7 @@
         'views/giai_doan_cong_viec_view.xml',
         'views/cong_viec_view.xml',
         'views/nhat_ky_cong_viec_view.xml',
-        'views/danh_gia_nhan_vien_view.xml',
+        'views/danh_gia_nhan_vien_quan_ly_cong_viec.xml',
         'views/menu.xml',
     ],
     # only loaded in demonstration mode

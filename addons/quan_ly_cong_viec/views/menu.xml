@@ -28,13 +28,6 @@
             sequence="5"
             action="action_nhat_ky"/> 
         
-        <menuitem
-            id="menu_danh_gia_nhan_vien"
-            name="Đánh Giá Nhân Viên"
-            parent="menu_root_duan"
-            sequence="6"
-            action="action_danh_gia_nhan_vien"/> 
-        
          <menuitem
             id="menu_dashboard"
             name="Dashboard"
