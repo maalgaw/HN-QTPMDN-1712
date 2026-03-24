@@ -83,7 +83,7 @@ Lệnh chạy từng module
 python3 odoo-bin.py -c odoo.conf -u [tên module] 
 ```
 
-Sử dụng  đường dẫn _http://localhost:8069/_ để vào hệ thống.
+Sử dụng  đường dẫn _http://localhost:8070/_ để vào hệ thống.
 
 ## 🔎 Nguồn tham khảo
 Dự án có tham khảo và kế thừa tài nguyên từ:
