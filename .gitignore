@@ -51,3 +51,7 @@ package.json
 /src/
 /venv/
 /venv_15_01/
+
+# Windows alternate data stream artifacts
+*Zone.Identifier*
+*:[Zz]one.Identifier*
