@@ -300,7 +300,7 @@ class DuAn(models.Model):
         Gọi thủ công từ quan_ly_cong_viec khi nhật ký / công việc thay đổi.
         """
         if 'cong_viec' not in self.env:
-            self.invalidate_recordset(['so_cong_viec', 'so_cong_viec_hoan_thanh'])
+            self.invalidate_cache(fnames=['so_cong_viec', 'so_cong_viec_hoan_thanh'])
             return
         for record in self:
             cong_viec_ids = self.env['cong_viec'].search([('project_id', '=', record.id)])
@@ -309,7 +309,7 @@ class DuAn(models.Model):
                 continue
             pts = cong_viec_ids.mapped('phan_tram_cong_viec')
             record.phan_tram_du_an = sum(pts) / len(pts)
-        self.invalidate_recordset(['so_cong_viec', 'so_cong_viec_hoan_thanh'])
+        self.invalidate_cache(fnames=['so_cong_viec', 'so_cong_viec_hoan_thanh'])
 
     # -----------------
     # AI actions
