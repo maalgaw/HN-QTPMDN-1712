@@ -47,6 +47,17 @@
                            attrs="{'readonly': [('tu_dong_trang_thai_du_an', '=', True)]}"/>
                 </header>
                 <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_mo_danh_sach_cong_viec" type="object" class="oe_stat_button" icon="fa-tasks"
+                                attrs="{'invisible': [('co_module_cong_viec', '=', False)]}">
+                            <field name="so_cong_viec" widget="statinfo" string="Công việc"/>
+                        </button>
+                        <button name="action_mo_cong_viec_da_hoan_thanh" type="object" class="oe_stat_button" icon="fa-check"
+                                attrs="{'invisible': [('co_module_cong_viec', '=', False)]}">
+                            <field name="so_cong_viec_hoan_thanh" widget="statinfo" string="Đã xong"/>
+                        </button>
+                    </div>
+                    <field name="co_module_cong_viec" invisible="1"/>
                     <group col="4">
                         <field name="ten_du_an"/>
                         <field name="mo_ta" placeholder="Mô tả chi tiết về dự án..."/>
@@ -60,9 +71,9 @@
                     <group col="4" string="Tiến Độ">
                         <field name="tu_dong_trang_thai_du_an"/>
                         <field name="tien_do" widget="progressbar" readonly="1"
-                               string="Tiến Độ (% theo công việc hoàn thành)"/>
+                               string="Tiến độ (TB % các công việc)"/>
                         <field name="phan_tram_du_an" widget="progressbar"
-                               string="Tiến Độ Dự Án (% có thể chỉnh tay)"/>
+                               string="Tiến độ dự án % (đồng bộ từ công việc, có thể chỉnh tay)"/>
                         <field name="diem_tb_danh_gia" readonly="1" string="Điểm TB đánh giá (1–10)"/>
                     </group>
 
@@ -126,10 +137,32 @@
         </field>
     </record>
 
+    <record id="view_du_an_search" model="ir.ui.view">
+        <field name="name">du_an.search</field>
+        <field name="model">du_an</field>
+        <field name="arch" type="xml">
+            <search string="Dự án">
+                <field name="ten_du_an"/>
+                <field name="nguoi_phu_trach_id"/>
+                <field name="tien_do_du_an"/>
+                <filter string="Đang thực hiện" name="filter_dang_th" domain="[('tien_do_du_an', '=', 'dang_thuc_hien')]"/>
+                <filter string="Hoàn thành" name="filter_xong" domain="[('tien_do_du_an', '=', 'hoan_thanh')]"/>
+                <filter string="Tạm dừng" name="filter_tam" domain="[('tien_do_du_an', '=', 'tam_dung')]"/>
+                <separator/>
+                <filter string="Tiến độ &lt; 100%" name="filter_chua_xong" domain="[('phan_tram_du_an', '&lt;', 100)]"/>
+                <group expand="0" string="Nhóm">
+                    <filter string="Trạng thái" name="group_tt" context="{'group_by': 'tien_do_du_an'}"/>
+                    <filter string="Người phụ trách" name="group_pm" context="{'group_by': 'nguoi_phu_trach_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
     <record id="action_du_an" model="ir.actions.act_window">
         <field name="name">Dự Án</field>
         <field name="res_model">du_an</field>
         <field name="view_mode">tree,form,graph</field>
+        <field name="search_view_id" ref="view_du_an_search"/>
     </record>
 </odoo>
 

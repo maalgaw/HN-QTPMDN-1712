@@ -7,7 +7,9 @@ class NhanVien(models.Model):
     _name = 'nhan_vien'
     _description = 'Bảng chứa thông tin nhân viên'
     _rec_name = 'ho_va_ten'
-    _order = 'ten asc, tuoi desc'
+    _order = 'trang_thai_lam_viec asc, ten asc, tuoi desc'
+
+    active = fields.Boolean(string='Còn làm việc', default=True)
 
     ma_dinh_danh = fields.Char("Mã định danh", required=True)
 
@@ -15,6 +17,21 @@ class NhanVien(models.Model):
     ten = fields.Char("Tên", required=True)
     ho_va_ten = fields.Char("Họ và tên", compute="_compute_ho_va_ten", store=True)
     
+    trang_thai_lam_viec = fields.Selection(
+        [
+            ('dang_lam', 'Đang làm việc'),
+            ('thu_viec', 'Thử việc'),
+            ('nghi_thai_san', 'Nghỉ thai sản'),
+            ('tam_nghi', 'Tạm nghỉ'),
+            ('nghi_viec', 'Đã nghỉ việc'),
+        ],
+        string='Trạng thái làm việc',
+        default='dang_lam',
+        required=True,
+    )
+    ngay_vao_lam = fields.Date(string='Ngày vào làm')
+    ghi_chu = fields.Text(string='Ghi chú nội bộ')
+
     ngay_sinh = fields.Date("Ngày sinh")
     que_quan = fields.Char("Quê quán")
     email = fields.Char("Email")
@@ -29,10 +46,11 @@ class NhanVien(models.Model):
         "danh_sach_chung_chi_bang_cap", 
         inverse_name="nhan_vien_id", 
         string = "Danh sách chứng chỉ bằng cấp")
-    so_nguoi_bang_tuoi = fields.Integer("Số người bằng tuổi", 
-                                        compute="so_nguoi_bang_tuoi",
-                                        store=True
-                                        )
+    so_nguoi_bang_tuoi = fields.Integer(
+        "Số người bằng tuổi",
+        compute="_compute_so_nguoi_bang_tuoi",
+        store=True,
+    )
     
     @api.depends("tuoi")
     def _compute_so_nguoi_bang_tuoi(self):

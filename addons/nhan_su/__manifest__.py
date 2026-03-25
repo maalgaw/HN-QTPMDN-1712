@@ -3,26 +3,22 @@
     'name': "nhan_su",
 
     'summary': """
-        Short (1 phrase/line) summary of the module's purpose, used as
-        subtitle on modules listing or apps.openerp.com""",
+        Hồ sơ nhân viên: liên hệ, trạng thái làm việc, lịch sử công tác, chứng chỉ, đánh giá.""",
 
     'description': """
-        Long description of module's purpose
+        Quản lý danh sách nhân viên, đơn vị, chức vụ, lịch sử công tác và chứng chỉ.
+        Hỗ trợ trạng thái làm việc, ngày vào làm và lưu trữ bản ghi (active).
     """,
 
     'author': "My Company",
     'website': "http://www.yourcompany.com",
 
-    # Categories can be used to filter modules in modules listing
-    # Check https://github.com/odoo/odoo/blob/15.0/odoo/addons/base/data/ir_module_category_data.xml
-    # for the full list
-    'category': 'Uncategorized',
-    'version': '0.1',
+    'category': 'Human Resources',
+    'version': '0.2',
+    'application': True,
 
-    # any module necessary for this one to work correctly
     'depends': ['base'],
 
-    # always loaded
     'data': [
         'security/ir.model.access.csv',
         'views/chuc_vu.xml',
@@ -33,9 +29,5 @@
         'views/danh_sach_chung_chi_bang_cap.xml',
         'views/danh_gia_nhan_vien_view.xml',
         'views/menu.xml',
-    ],
-    # only loaded in demonstration mode
-    'demo': [
-        'demo/demo.xml',
     ],
 }

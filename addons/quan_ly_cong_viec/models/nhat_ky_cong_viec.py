@@ -62,8 +62,10 @@ class NhatKyCongViec(models.Model):
         # Cập nhật tiến độ công việc (tổng các mức độ)
         # Trạng thái nhật ký sẽ tự động được tính toán vì là computed field
         record.cong_viec_id._compute_phan_tram_cong_viec()
+        record.cong_viec_id._set_done_if_complete()
         # Cập nhật tiến độ dự án
-        record.cong_viec_id.du_an_id._compute_phan_tram_du_an()
+        if record.cong_viec_id.project_id:
+            record.cong_viec_id.project_id._compute_phan_tram_du_an()
         return record
 
     def write(self, vals):
@@ -72,8 +74,10 @@ class NhatKyCongViec(models.Model):
             # Cập nhật tiến độ công việc (tổng các mức độ)
             # Trạng thái nhật ký sẽ tự động được tính toán vì là computed field
             record.cong_viec_id._compute_phan_tram_cong_viec()
+            record.cong_viec_id._set_done_if_complete()
             # Cập nhật tiến độ dự án
-            record.cong_viec_id.du_an_id._compute_phan_tram_du_an()
+            if record.cong_viec_id.project_id:
+                record.cong_viec_id.project_id._compute_phan_tram_du_an()
         return res
 
     def unlink(self):
@@ -83,8 +87,10 @@ class NhatKyCongViec(models.Model):
             # Cập nhật tiến độ công việc sau khi xóa nhật ký
             # Trạng thái nhật ký sẽ tự động được tính toán vì là computed field
             cong_viec._compute_phan_tram_cong_viec()
+            cong_viec._set_done_if_complete()
             # Cập nhật tiến độ dự án
-            cong_viec.du_an_id._compute_phan_tram_du_an()
+            if cong_viec.project_id:
+                cong_viec.project_id._compute_phan_tram_du_an()
         return res
 
 

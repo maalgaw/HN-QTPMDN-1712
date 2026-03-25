@@ -3,7 +3,7 @@
         <field name="name">Dashboard View</field>
         <field name="model">dashboard</field>
         <field name="arch" type="xml">
-            <form string="Dashboard">
+            <form string="Dashboard" create="false" delete="false">
                 <group>
                     <!-- <separator string="Tổng Quan"/> -->
                     <div class="dashboard-container">
@@ -22,9 +22,17 @@
                             <span class="title">Số Lượng Công Việc</span>
                             <span class="value"><field name="so_luong_cong_viec" readonly="1"/></span>
                         </div>
+                        <div class="dashboard-card brown">
+                            <span class="title">Công Việc Hoàn Thành</span>
+                            <span class="value"><field name="so_luong_cong_viec_hoan_thanh" readonly="1"/></span>
+                        </div>
                         <div class="dashboard-card yellow">
                             <span class="title">Số Lượng Đánh Giá</span>
                             <span class="value"><field name="so_luong_danh_gia" readonly="1"/></span>
+                        </div>
+                        <div class="dashboard-card green">
+                            <span class="title">TB Tiến Độ Dự Án (%)</span>
+                            <span class="value"><field name="phan_tram_hoan_thanh" readonly="1"/></span>
                         </div>
 
                     </div>
@@ -58,5 +66,7 @@
         <field name="name">Dashboard</field>
         <field name="res_model">dashboard</field>
         <field name="view_mode">form</field>
+        <field name="res_id" eval="ref('quan_ly_cong_viec.dashboard_singleton')"/>
+        <field name="target">current</field>
     </record>
 </odoo>

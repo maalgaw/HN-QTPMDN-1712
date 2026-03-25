@@ -3,19 +3,18 @@
     'name': "quan_ly_du_an",
 
     'summary': """
-        Quản lý dự án, dùng chung cho các module quản lý công việc và nhân sự""",
+        Dự án, tài nguyên, rủi ro, đánh giá, AI gợi ý; thống kê công việc khi có module công việc.""",
 
     'description': """
-        Module quản lý dự án tách riêng, liên kết với:
-        - Module quản lý công việc (quan_ly_cong_viec)
-        - Module nhân sự (nhan_su)
+        Quản lý dự án (du_an): team, tiến độ, tài nguyên, rủi ro, biểu mẫu, đánh giá, tích hợp AI.
+        Liên kết nhân sự (nhan_su). Nút thống kê công việc hiển thị khi cài quan_ly_cong_viec.
     """,
 
     'author': "My Company",
     'website': "http://www.yourcompany.com",
 
     'category': 'Project',
-    'version': '0.1',
+    'version': '0.2',
     'application': True,
 
     # any module necessary for this one to work correctly

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Một bản ghi cố định để form Dashboard luôn đọc được số liệu (tránh mở form tạo mới → toàn 0) -->
+        <record id="dashboard_singleton" model="dashboard"/>
+    </data>
+</odoo>

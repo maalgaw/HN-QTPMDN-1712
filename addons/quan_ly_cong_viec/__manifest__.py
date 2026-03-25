@@ -3,21 +3,20 @@
     'name': "quan_ly_cong_viec",
 
     'summary': """
-        Short (1 phrase/line) summary of the module's purpose, used as
-        subtitle on modules listing or apps.openerp.com""",
+        Quản lý công việc theo dự án: tiên quyết giữa các việc, Kanban, timesheet và AI hỗ trợ.""",
 
     'description': """
-        Long description of module's purpose
+        Công việc gắn dự án (du_an), quan hệ tiên quyết (finish-to-start, chống vòng lặp),
+        nhật ký tiến độ, ghi nhận thời gian, tài nguyên, đánh giá.
+        Tích hợp tùy chọn Gemini AI (cấu hình trong Cài đặt).
     """,
 
     'author': "My Company",
     'website': "http://www.yourcompany.com",
 
-    # Categories can be used to filter modules in modules listing
-    # Check https://github.com/odoo/odoo/blob/15.0/odoo/addons/base/data/ir_module_category_data.xml
-    # for the full list
-    'category': 'Uncategorized',
-    'version': '0.1',
+    'category': 'Project',
+    'version': '0.4',
+    'application': True,
 
     # any module necessary for this one to work correctly
     # Phụ thuộc vào module quản lý dự án mới để dùng model du_an
@@ -26,16 +25,14 @@
     # always loaded
     'data': [
         'security/ir.model.access.csv',
+        'data/dashboard_data.xml',
+        'views/res_config_settings_view.xml',
         'views/dashboard_view.xml',
         'views/giai_doan_cong_viec_view.xml',
         'views/cong_viec_view.xml',
         'views/nhat_ky_cong_viec_view.xml',
         'views/danh_gia_nhan_vien_quan_ly_cong_viec.xml',
         'views/menu.xml',
-    ],
-    # only loaded in demonstration mode
-    'demo': [
-        'demo/demo.xml',
     ],
     
     'icon': '/quan_ly_cong_viec/static/description/image.png',
@@ -45,4 +42,7 @@
             '/quan_ly_cong_viec/static/css/dashboard.css',
         ],
     },
+
+    'post_init_hook': 'quan_ly_cong_viec.hooks.post_init_hook',
 }
+

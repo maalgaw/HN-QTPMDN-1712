@@ -6,3 +6,4 @@ access_nhat_ky_thoi_gian,nhat_ky_thoi_gian.nhat_ky_thoi_gian,model_nhat_ky_thoi_
 access_tai_lieu_cong_viec,tai_lieu_cong_viec.tai_lieu_cong_viec,model_tai_lieu_cong_viec,base.group_user,1,1,1,1
 access_tai_nguyen_cong_viec,tai_nguyen_cong_viec.tai_nguyen_cong_viec,model_tai_nguyen_cong_viec,base.group_user,1,1,1,1
 access_dashboard,dashboard.dashboard,model_dashboard,base.group_user,1,1,1,1
+access_cong_viec_phu_thuoc,cong_viec_phu_thuoc.cong_viec_phu_thuoc,model_cong_viec_phu_thuoc,base.group_user,1,1,1,1

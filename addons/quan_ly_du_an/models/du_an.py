@@ -58,14 +58,30 @@ class DuAn(models.Model):
     phan_tram_du_an = fields.Float(
         string="Tiến Độ Dự Án (%)",
         default=0.0,
-        help='Có thể chỉnh tay; vẫn có thể được đồng bộ khi thay đổi công việc.',
+        help='Trung bình % hoàn thành của các công việc; có thể chỉnh tay, đồng bộ khi công việc đổi tiến độ.',
     )
     
-    # Tiến độ (%) tính toán tự động từ số công việc hoàn thành
+    # Tiến độ (%) — đồng bộ với Tiến độ dự án (%) sau khi tính từ công việc
     tien_do = fields.Float(
         string="Tiến Độ (%)",
         compute="_compute_tien_do",
-        help="Phần trăm hoàn thành dự án dựa trên số công việc đã hoàn thành"
+        help="Trung bình phần trăm hoàn thành của các công việc trong dự án (giống Tiến độ dự án %).",
+    )
+
+    co_module_cong_viec = fields.Boolean(
+        string='Có module công việc',
+        compute='_compute_thong_ke_cong_viec',
+        store=False,
+    )
+    so_cong_viec = fields.Integer(
+        string='Số công việc',
+        compute='_compute_thong_ke_cong_viec',
+        store=False,
+    )
+    so_cong_viec_hoan_thanh = fields.Integer(
+        string='Công việc đã xong',
+        compute='_compute_thong_ke_cong_viec',
+        store=False,
     )
 
     # AI fields
@@ -118,37 +134,64 @@ class DuAn(models.Model):
                 # Đang trong thời gian thực hiện
                 record.tien_do_du_an = 'dang_thuc_hien'
 
-    @api.depends('nhan_vien_ids')
+    @api.depends('phan_tram_du_an')
     def _compute_tien_do(self):
-        """Tính toán tự động % hoàn thành dự án dựa trên số công việc đã hoàn thành
-        
-        Thuật toán:
-        - Lấy tổng số công việc con của dự án (len(cong_viec_ids))
-        - Đếm số công việc có trạng thái 'done' (hoàn thành)
-        - Tiến độ = (Số việc xong / Tổng số việc) * 100
-        - Nếu không có việc nào thì tiến độ = 0
-        """
+        """Giữ khớp với Tiến độ dự án (%) — nguồn đúng được cập nhật từ công việc."""
         for record in self:
-            try:
-                # Tìm tất cả công việc thuộc dự án này
-                cong_viec_ids = self.env['cong_viec'].search([('project_id', '=', record.id)])
-                
-                if cong_viec_ids:
-                    # Đếm số công việc có trạng thái 'done'
-                    so_cong_viec_hoan_thanh = len(cong_viec_ids.filtered(lambda cv: cv.trang_thai == 'done'))
-                    tong_so_cong_viec = len(cong_viec_ids)
-                    
-                    # Tính phần trăm: (số công việc hoàn thành / tổng số công việc) * 100
-                    if tong_so_cong_viec > 0:
-                        record.tien_do = (so_cong_viec_hoan_thanh / tong_so_cong_viec) * 100.0
-                    else:
-                        record.tien_do = 0.0
-                else:
-                    # Không có công việc nào thì tiến độ = 0
-                    record.tien_do = 0.0
-            except KeyError:
-                # Model cong_viec chưa được load - mặc định tiến độ = 0
-                record.tien_do = 0.0
+            record.tien_do = record.phan_tram_du_an
+
+    @api.depends()
+    def _compute_thong_ke_cong_viec(self):
+        """Thống kê công việc khi module quan_ly_cong_viec đã cài."""
+        has = 'cong_viec' in self.env
+        for record in self:
+            record.co_module_cong_viec = has
+            if not has or not record.id:
+                record.so_cong_viec = 0
+                record.so_cong_viec_hoan_thanh = 0
+                continue
+            CV = self.env['cong_viec']
+            record.so_cong_viec = CV.search_count([('project_id', '=', record.id)])
+            record.so_cong_viec_hoan_thanh = CV.search_count(
+                [
+                    ('project_id', '=', record.id),
+                    ('trang_thai_cong_viec', '=', 'hoan_thanh'),
+                ]
+            )
+
+    def action_mo_danh_sach_cong_viec(self):
+        """Mở danh sách công việc thuộc dự án (cần module quan_ly_cong_viec)."""
+        self.ensure_one()
+        if 'cong_viec' not in self.env:
+            raise UserError('Hãy cài module "Quản lý công việc" để dùng tính năng này.')
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Công việc theo dự án',
+            'res_model': 'cong_viec',
+            'view_mode': 'kanban,tree,form',
+            'domain': [('project_id', '=', self.id)],
+            'context': {
+                'default_project_id': self.id,
+                'search_default_chua_hoan_thanh': 1,
+            },
+        }
+
+    def action_mo_cong_viec_da_hoan_thanh(self):
+        """Danh sách công việc đã hoàn thành theo dự án."""
+        self.ensure_one()
+        if 'cong_viec' not in self.env:
+            raise UserError('Hãy cài module "Quản lý công việc" để dùng tính năng này.')
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Công việc đã xong',
+            'res_model': 'cong_viec',
+            'view_mode': 'kanban,tree,form',
+            'domain': [
+                ('project_id', '=', self.id),
+                ('trang_thai_cong_viec', '=', 'hoan_thanh'),
+            ],
+            'context': {'default_project_id': self.id},
+        }
 
     @api.constrains('phan_tram_du_an')
     def _check_phan_tram_du_an(self):
@@ -251,26 +294,22 @@ class DuAn(models.Model):
         return result
 
     def _compute_phan_tram_du_an(self):
-        """Tính phần trăm hoàn thành dự án theo số công việc đã hoàn thành
-        Method này được gọi thủ công từ module quan_ly_cong_viec khi có thay đổi công việc
-        Trạng thái dự án sẽ tự động được tính toán vì tien_do_du_an là computed field
+        """Trung bình % hoàn thành của các công việc (phan_tram_cong_viec).
+
+        Trước đây chỉ đếm việc đạt 100% → một việc 26% vẫn cho dự án 0%.
+        Gọi thủ công từ quan_ly_cong_viec khi nhật ký / công việc thay đổi.
         """
+        if 'cong_viec' not in self.env:
+            self.invalidate_recordset(['so_cong_viec', 'so_cong_viec_hoan_thanh'])
+            return
         for record in self:
-            # Tìm tất cả công việc thuộc dự án này
             cong_viec_ids = self.env['cong_viec'].search([('project_id', '=', record.id)])
-            
-            if cong_viec_ids:
-                # Đếm số công việc đã hoàn thành (phan_tram_cong_viec >= 100)
-                so_cong_viec_hoan_thanh = len(cong_viec_ids.filtered(lambda cv: cv.phan_tram_cong_viec >= 100.0))
-                tong_so_cong_viec = len(cong_viec_ids)
-                
-                # Tính phần trăm: (số công việc hoàn thành / tổng số công việc) * 100
-                if tong_so_cong_viec > 0:
-                    record.phan_tram_du_an = (so_cong_viec_hoan_thanh / tong_so_cong_viec) * 100.0
-                else:
-                    record.phan_tram_du_an = 0.0
-            else:
+            if not cong_viec_ids:
                 record.phan_tram_du_an = 0.0
+                continue
+            pts = cong_viec_ids.mapped('phan_tram_cong_viec')
+            record.phan_tram_du_an = sum(pts) / len(pts)
+        self.invalidate_recordset(['so_cong_viec', 'so_cong_viec_hoan_thanh'])
 
     # -----------------
     # AI actions

@@ -7,6 +7,9 @@
             <field name="arch" type="xml">
                 <form>
                     <sheet>
+                        <widget name="web_ribbon" title="Đã nghỉ việc" bg_color="bg-danger"
+                                attrs="{'invisible': [('trang_thai_lam_viec', '!=', 'nghi_viec')]}"/>
+                        <field name="active" invisible="1"/>
                         <div class="oe_read_only" style="font-size:25px">Nhân viên</div>
                         <group col="4" string="Thông tin chung">
                             <field name="ho_ten_dem"/>
@@ -21,17 +24,22 @@
                             <field name="so_dien_thoai"/>
                             <field name="anh" widget="image"/>
                         </group>
+                        <group col="4" string="Làm việc">
+                            <field name="trang_thai_lam_viec"/>
+                            <field name="ngay_vao_lam"/>
+                        </group>
+                        <group string="Ghi chú">
+                            <field name="ghi_chu" colspan="2" nolabel="1" placeholder="Ghi chú nội bộ..."/>
+                        </group>
                         <notebook>
                             <page string="Danh sách lịch sử công tác">
                                 <field name="lich_su_cong_tac_ids"/>
                             </page>
                             <page string="Danh sách chứng chỉ bằng cấp">
-                                <field name="danh_sach_chung_chi_bang_cap_ids"/>                            
+                                <field name="danh_sach_chung_chi_bang_cap_ids"/>
                             </page>
-                            
                         </notebook>
                     </sheet>
-                    
                 </form>
             </field>
         </record>
@@ -40,14 +48,19 @@
             <field name="name">nhan_vien</field>
             <field name="model">nhan_vien</field>
             <field name="arch" type="xml">
-                <tree>
+                <tree decoration-muted="trang_thai_lam_viec == 'nghi_viec'"
+                      decoration-warning="trang_thai_lam_viec == 'thu_viec' or trang_thai_lam_viec == 'tam_nghi' or trang_thai_lam_viec == 'nghi_thai_san'"
+                      string="Nhân viên">
+                    <field name="active" invisible="1"/>
                     <field name="ma_dinh_danh"/>
                     <field name="ho_ten_dem"/>
                     <field name="ten"/>
                     <field name="ho_va_ten"/>
+                    <field name="trang_thai_lam_viec" optional="show"/>
+                    <field name="ngay_vao_lam" optional="hide"/>
                     <field name="ngay_sinh"/>
                     <field name="tuoi"/>
-                    <field name="so_nguoi_bang_tuoi"/>
+                    <field name="so_nguoi_bang_tuoi" optional="hide"/>
                     <field name="que_quan"/>
                     <field name="email"/>
                     <field name="so_dien_thoai"/>
@@ -65,6 +78,16 @@
                     <field name="tuoi"/>
                     <field name="que_quan"/>
                     <field name="email"/>
+                    <field name="trang_thai_lam_viec"/>
+                    <filter string="Đang làm việc" name="filter_dang_lam" domain="[('trang_thai_lam_viec', '=', 'dang_lam')]"/>
+                    <filter string="Thử việc" name="filter_thu_viec" domain="[('trang_thai_lam_viec', '=', 'thu_viec')]"/>
+                    <filter string="Đã nghỉ việc" name="filter_nghi" domain="[('trang_thai_lam_viec', '=', 'nghi_viec')]"/>
+                    <separator/>
+                    <filter string="Đang lưu hồ sơ" name="active_true" domain="[('active', '=', True)]"/>
+                    <filter string="Đã lưu trữ" name="active_false" domain="[('active', '=', False)]"/>
+                    <group expand="0" string="Nhóm">
+                        <filter string="Trạng thái làm việc" name="group_trang_thai" context="{'group_by': 'trang_thai_lam_viec'}"/>
+                    </group>
                 </search>
             </field>
         </record>
@@ -73,9 +96,8 @@
             <field name="name">Nhân viên</field>
             <field name="res_model">nhan_vien</field>
             <field name="view_mode">tree,form</field>
-            <field name="search_view_id" ref = "nhan_vien_search"/>
+            <field name="search_view_id" ref="nhan_vien_search"/>
+            <field name="context">{'search_default_active_true': 1}</field>
         </record>
     </data>
 </odoo>
-        
-    

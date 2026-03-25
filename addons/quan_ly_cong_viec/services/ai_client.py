@@ -21,7 +21,7 @@ class AiClient:
         enabled = self._get_param('quan_ly_cong_viec.ai_enabled', 'False') == 'True'
         api_key = self._get_param('quan_ly_cong_viec.ai_api_key')
         base_url = (self._get_param('quan_ly_cong_viec.ai_base_url', 'https://generativelanguage.googleapis.com/v1beta') or '').rstrip('/')
-        model = self._get_param('quan_ly_cong_viec.ai_model', 'gemini-1.5-flash')
+        model = self._get_param('quan_ly_cong_viec.ai_model', 'gemini-2.5-flash')
         timeout = int(self._get_param('quan_ly_cong_viec.ai_timeout', '30') or 30)
         return enabled, api_key, base_url, model, timeout
 

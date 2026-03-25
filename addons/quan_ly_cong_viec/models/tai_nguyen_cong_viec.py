@@ -25,7 +25,7 @@ class TaiNguyenCongViec(models.Model):
     def _onchange_cong_viec_id(self):
         """Khi thay đổi công việc, xóa tài nguyên nếu không thuộc dự án mới"""
         if self.cong_viec_id and self.tai_nguyen_id:
-            if self.tai_nguyen_id.du_an_id != self.cong_viec_id.du_an_id:
+            if self.tai_nguyen_id.du_an_id != self.cong_viec_id.project_id:
                 self.tai_nguyen_id = False
 
     @api.constrains('tai_nguyen_id', 'so_luong_su_dung', 'cong_viec_id')

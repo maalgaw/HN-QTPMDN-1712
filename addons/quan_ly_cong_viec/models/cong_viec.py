@@ -11,8 +11,10 @@ class CongViec(models.Model):
     _name = 'cong_viec'
     _description = 'Công Việc Dự Án'
     _rec_name = 'ten_cong_viec'
+    _order = 'muc_do_uu_tien desc, sequence, id'
 
-    ten_cong_viec = fields.Char(string='Tên Công Việc' )
+    sequence = fields.Integer(string='Thứ tự', default=10)
+    ten_cong_viec = fields.Char(string='Tên Công Việc', required=True)
     mo_ta = fields.Text(string='Mô Tả')
     project_id = fields.Many2one('du_an', string='Dự Án', required=True, ondelete='cascade')
 
@@ -44,6 +46,29 @@ class CongViec(models.Model):
     tai_lieu_dinh_kem_ids = fields.One2many(
         'tai_lieu_cong_viec', 'cong_viec_id', string='Tài Liệu Đính Kèm'
     )
+
+    phu_thuoc_tien_quyet_line_ids = fields.One2many(
+        'cong_viec_phu_thuoc',
+        'cong_viec_id',
+        string='Tiên quyết (phải xong trước)',
+        help='Các công việc khác trong cùng dự án phải hoàn thành trước khi chuyển sang Đang làm.',
+    )
+    du_dieu_kien_tien_quyet = fields.Boolean(
+        string='Đủ điều kiện tiên quyết',
+        compute='_compute_tien_quyet',
+        store=False,
+    )
+    so_tien_quyet_chua_xong = fields.Integer(
+        string='Tiên quyết chưa xong',
+        compute='_compute_tien_quyet',
+        store=False,
+    )
+    so_cong_viec_chi_doi_nay = fields.Integer(
+        string='Việc đang chờ công việc này',
+        compute='_compute_tien_quyet',
+        store=False,
+        help='Số công việc khác trong dự án đang chờ công việc này hoàn thành.',
+    )
     
     nhan_vien_display = fields.Char(string="Nhân Viên Tham Gia (Tên + Mã Định Danh)", compute="_compute_nhan_vien_display")
 
@@ -53,11 +78,25 @@ class CongViec(models.Model):
         store=True
     )
     
+    muc_do_uu_tien = fields.Selection([
+        ('0', 'Thấp'),
+        ('1', 'Bình thường'),
+        ('2', 'Cao'),
+        ('3', 'Khẩn cấp'),
+    ], string='Ưu tiên', default='1', required=True)
+
     trang_thai = fields.Selection([
         ('new', 'Mới'),
         ('in_progress', 'Đang Làm'),
         ('done', 'Hoàn Thành'),
     ], string='Trạng Thái Công Việc', default='new')
+
+    tre_han = fields.Boolean(
+        string='Quá hạn',
+        compute='_compute_tre_han',
+        store=False,
+        help='Hạn chót đã qua và công việc chưa hoàn thành (cập nhật khi mở danh sách).',
+    )
     
     trang_thai_cong_viec = fields.Selection([
         ('chua_hoan_thanh', 'Chưa Hoàn Thành'),
@@ -71,6 +110,42 @@ class CongViec(models.Model):
         enabled = self.env['ir.config_parameter'].sudo().get_param('quan_ly_cong_viec.ai_enabled', 'False') == 'True'
         for record in self:
             record.ai_enabled = enabled
+
+    @api.depends(
+        'phu_thuoc_tien_quyet_line_ids.tien_quyet_id.trang_thai_cong_viec',
+        'phu_thuoc_tien_quyet_line_ids.tien_quyet_id.trang_thai',
+    )
+    def _compute_tien_quyet(self):
+        PhuThuoc = self.env['cong_viec_phu_thuoc']
+        for record in self:
+            lines = record.phu_thuoc_tien_quyet_line_ids
+            preds = lines.mapped('tien_quyet_id')
+            chua = preds.filtered(lambda p: p.trang_thai_cong_viec != 'hoan_thanh')
+            record.so_tien_quyet_chua_xong = len(chua)
+            record.du_dieu_kien_tien_quyet = not lines or not chua
+            if record.id:
+                record.so_cong_viec_chi_doi_nay = PhuThuoc.search_count(
+                    [('tien_quyet_id', '=', record.id)]
+                )
+            else:
+                record.so_cong_viec_chi_doi_nay = 0
+
+    @api.depends('han_chot', 'trang_thai_cong_viec', 'phan_tram_cong_viec', 'trang_thai')
+    def _compute_tre_han(self):
+        now = datetime.now()
+        for record in self:
+            if record.phan_tram_cong_viec >= 100.0 or record.trang_thai == 'done':
+                record.tre_han = False
+            elif record.han_chot and record.han_chot < now:
+                record.tre_han = True
+            else:
+                record.tre_han = False
+
+    def _set_done_if_complete(self):
+        """Đặt trạng thái workflow thành Hoàn thành khi tiến độ đạt 100%."""
+        for record in self:
+            if record.phan_tram_cong_viec >= 100.0 and record.trang_thai != 'done':
+                record.sudo().with_context(skip_cv_done_sync=True).write({'trang_thai': 'done'})
 
     @api.depends('nhat_ky_thoi_gian_ids.so_gio')
     def _compute_tong_gio_lam(self):
@@ -93,7 +168,7 @@ class CongViec(models.Model):
             # Cập nhật tiến độ dự án khi phần trăm công việc thay đổi
             if record.project_id:
                 record.project_id._compute_phan_tram_du_an()
-    
+
     @api.depends('phan_tram_cong_viec')
     def _compute_trang_thai_cong_viec(self):
         """Tự động cập nhật trạng thái công việc dựa trên tiến độ
@@ -131,6 +206,13 @@ class CongViec(models.Model):
     def _onchange_project_id(self):
         if self.project_id:
             self.nhan_vien_ids = [(6, 0, self.project_id.nhan_vien_ids.ids)]
+            if self.nguoi_thuc_hien_id and self.nguoi_thuc_hien_id not in self.project_id.nhan_vien_ids:
+                self.nguoi_thuc_hien_id = False
+
+    @api.onchange('nguoi_thuc_hien_id')
+    def _onchange_nguoi_thuc_hien(self):
+        if self.nguoi_thuc_hien_id and self.nguoi_thuc_hien_id not in self.nhan_vien_ids:
+            self.nhan_vien_ids = [(4, self.nguoi_thuc_hien_id.id)]
 
             
     @api.constrains('project_id')
@@ -149,6 +231,32 @@ class CongViec(models.Model):
                 for nhan_vien in record.nhan_vien_ids:
                     if nhan_vien.id not in nhan_vien_du_an_ids:
                         raise ValidationError(f"Nhân viên {nhan_vien.display_name} không thuộc dự án này.")
+
+    @api.constrains('nguoi_thuc_hien_id', 'nhan_vien_ids')
+    def _check_nguoi_thuc_hien_trong_team(self):
+        for record in self:
+            if record.nguoi_thuc_hien_id and record.nguoi_thuc_hien_id not in record.nhan_vien_ids:
+                raise ValidationError(
+                    'Người thực hiện phải nằm trong danh sách nhân viên tham gia công việc.'
+                )
+
+    @api.constrains('trang_thai')
+    def _check_tien_quyet_truoc_khi_dang_lam(self):
+        if self.env.context.get('skip_tien_quyet_check'):
+            return
+        for record in self:
+            if record.trang_thai != 'in_progress':
+                continue
+            chua = record.phu_thuoc_tien_quyet_line_ids.mapped('tien_quyet_id').filtered(
+                lambda p: p.trang_thai_cong_viec != 'hoan_thanh'
+            )
+            if not chua:
+                continue
+            names = ', '.join(chua.mapped('ten_cong_viec'))
+            raise ValidationError(
+                'Chưa thể chuyển sang "Đang làm": các công việc tiên quyết chưa hoàn thành: %s'
+                % names
+            )
 
     def _copy_tai_lieu_mau_tu_du_an(self):
         """Nhân bản toàn bộ tài liệu biểu mẫu của dự án sang công việc mới."""
@@ -170,15 +278,44 @@ class CongViec(models.Model):
                 'nguoi_tai_len_id': False,
             })
 
+    @api.model
+    def _prepare_create_vals_assignee_in_team(self, vals):
+        """Gán người thực hiện mặc định từ nhóm tham gia (nếu thiếu) và đảm bảo họ nằm trong team."""
+        vals = dict(vals)
+        cmd = vals.get('nhan_vien_ids')
+        member_ids = []
+        if cmd and len(cmd) and cmd[0][0] == 6:
+            member_ids = list(cmd[0][2])
+        if not vals.get('nguoi_thuc_hien_id') and member_ids:
+            vals['nguoi_thuc_hien_id'] = member_ids[0]
+        if not vals.get('nguoi_thuc_hien_id'):
+            return vals
+        if cmd and len(cmd) and cmd[0][0] == 6:
+            ids = set(cmd[0][2])
+            ids.add(vals['nguoi_thuc_hien_id'])
+            vals['nhan_vien_ids'] = [(6, 0, list(ids))]
+        else:
+            vals['nhan_vien_ids'] = [(6, 0, [vals['nguoi_thuc_hien_id']])]
+        return vals
+
     @api.model_create_multi
     def create(self, vals_list):
         """Tạo công việc, cập nhật tiến độ dự án và tự gắn tài liệu mẫu từ dự án."""
+        for i, vals in enumerate(vals_list):
+            vals_list[i] = self._prepare_create_vals_assignee_in_team(vals)
         records = super().create(vals_list)
         for record in records:
             if record.project_id:
                 record.project_id._compute_phan_tram_du_an()
                 record._copy_tai_lieu_mau_tu_du_an()
+            record._set_done_if_complete()
         return records
+
+    def write(self, vals):
+        res = super(CongViec, self).write(vals)
+        if not self.env.context.get('skip_cv_done_sync'):
+            self._set_done_if_complete()
+        return res
 
     def unlink(self):
         """Xóa công việc và cập nhật tiến độ dự án"""
@@ -284,6 +421,7 @@ class CongViec(models.Model):
             # Ensure project includes them
             du_an.nhan_vien_ids = [(6, 0, list(set(du_an.nhan_vien_ids.ids + member_ids)))]
             record.nhan_vien_ids = [(6, 0, member_ids)]
+            record.nguoi_thuc_hien_id = member_ids[0]
             record.ai_last_note = note
 
         return {
